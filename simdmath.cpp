@@ -71,3 +71,17 @@ __m256 SIMDMath::cos(const __m256& pi)
     return _mm256_add_ps(_mm256_add_ps(v12,v46),v810);
 }
 
+__m256 SIMDMath::tan(const std::vector<float>& pi)
+{
+    __m256 v_pi = _mm256_loadu_ps(&pi[0]);
+
+    return tan(v_pi);
+}
+
+__m256 SIMDMath::tan(const __m256& pi)
+{
+    __m256 sin = sin(pi);
+    __m256 cos = cos(pi);
+
+    return _mm256_div_ps(sin,cos);
+}
