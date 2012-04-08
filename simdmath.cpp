@@ -41,11 +41,18 @@ __m256 SIMDMath::sin(const __m256& pi)
     __m256 v9  = _mm256_mul_ps(v7,v2);
     __m256 v11 = _mm256_mul_ps(v9,v2);
 
+#ifdef _FMA4_
+    __m256 v13  = _mm256_nmacc_ps(denoms[2], v3, v1);
+    __m256 v57  = _mm256_nmacc_ps( v7, denoms[ 6], _mm256_mul_ps(v5,denoms[4]));
+    __m256 v911 = _mm256_nmacc_ps(v11, denoms[10], _mm256_mul_ps(v9,denoms[8]));
+#else
     __m256 v13  = _mm256_sub_ps(v1,_mm256_mul_ps(denoms[2],v3));
     __m256 v57  = _mm256_sub_ps(_mm256_mul_ps(v5,denoms[4]),_mm256_mul_ps(v7,denoms[6]));
     __m256 v911 = _mm256_sub_ps(_mm256_mul_ps(v9,denoms[8]),_mm256_mul_ps(v11,denoms[10]));
+#endif
 
     return _mm256_add_ps(_mm256_add_ps(v13,v57),v911);
+
 }
 
 __m256 SIMDMath::cos(const std::vector<float>& pi)
@@ -64,9 +71,15 @@ __m256 SIMDMath::cos(const __m256& pi)
     __m256 v8  = _mm256_mul_ps( v6,v2);
     __m256 v10 = _mm256_mul_ps( v8,v2);
 
-    __m256 v12  = _mm256_sub_ps(v1,_mm256_mul_ps(v2,denoms[1]));
+#ifdef _FMA4_
+    __m256 v12  = _mm256_nmacc_ps( v2,denoms[1], v1);
+    __m256 v46  = _mm256_nmacc_ps( v6,denoms[5], _mm256_mul_ps(v4,denoms[3]));
+    __m256 v810 = _mm256_nmacc_ps(v10,denoms[9], _mm256_mul_ps(v8,denoms[7]));
+#else
+    __m256 v12  = _mm256_sub_ps(v1, _mm256_mul_ps(v2,denoms[1]));
     __m256 v46  = _mm256_sub_ps(_mm256_mul_ps(v4,denoms[3]),_mm256_mul_ps( v6,denoms[5]));
     __m256 v810 = _mm256_sub_ps(_mm256_mul_ps(v8,denoms[7]),_mm256_mul_ps(v10,denoms[9]));
+#endif
 
     return _mm256_add_ps(_mm256_add_ps(v12,v46),v810);
 }
@@ -80,8 +93,8 @@ __m256 SIMDMath::tan(const std::vector<float>& pi)
 
 __m256 SIMDMath::tan(const __m256& pi)
 {
-    __m256 sin = sin(pi);
-    __m256 cos = cos(pi);
+    __m256 v_sin = sin(pi);
+    __m256 v_cos = cos(pi);
 
-    return _mm256_div_ps(sin,cos);
+    return _mm256_div_ps(v_sin,v_cos);
 }
